@@ -43,16 +43,14 @@ class PartnerEmailSMSHistory(models.Model):
         result['domain'] = ['|', ('email_to', '=', self.email), ('recipient_ids', '=', self.email)]
         return result
 
-    #    @api.depends('email')
-    #    def get_email_valid(self):
-    #        if re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', self):
-    #            return True
-    #        else:
-    #            return False
+    email_valid = fields.Boolean(compute="_get_email_valid", string="Email Valid")
 
-    email_valid = fields.Boolean(
-        string='Email valid',
-        default=lambda self: True if re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', self.email) else False)
+    @api.depends('email')
+    def _get_email_valid(self):
+        if re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', self.email):
+            self.email_valid = True
+        else:
+            self.email_valid = False
 
 
 class ResConfigSettings(models.TransientModel):
